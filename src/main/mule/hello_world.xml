@@ -12,21 +12,6 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<db:config name="Database_Config" doc:name="Database Config" doc:id="4058e03f-10dd-4e20-bdf0-86857615322a" >
 		<db:my-sql-connection host="mudb.learn.mulesoft.com" port="3306" user="mule" password="mule" database="training" />
 	</db:config>
-	<flow name="getAllFlights" doc:id="0574d071-0d67-4472-8fb0-7906ca3add6a" >
-		<http:listener doc:name="GET /flights" doc:id="ee85c327-c2e3-4f75-a053-084d13a42f8d" config-ref="HTTP_Listener_config" path="/flights" allowedMethods="GET"/>
-		<db:select doc:name="select all flights" doc:id="cbeabf1e-6c70-4cdf-8aa6-f81cea68c445" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT * FROM american]]></db:sql>
-		</db:select>
-		<ee:transform doc:name="Transform Message" doc:id="62fab712-5680-416c-9ada-f56d56a95018" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-payload]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<logger level="INFO" doc:name="Log fetched flights id" doc:id="2309b11c-7412-4be9-9ee8-8b748f79eb00" message="#[payload.ID]" />
-	</flow>
 	<flow name="getFlightByID" doc:id="9086943f-19c4-431c-a474-36f4f62f8529">
 		<http:listener doc:name="GET /flights/{ID}" doc:id="d92e4857-9484-47b1-9a1d-59c1048f72f4" config-ref="HTTP_Listener_config" path="/flights/{ID}" allowedMethods="GET" />
 		<set-variable value="#[message.attributes.uriParams.ID]" doc:name="Set Flight ID" doc:id="4831e743-2117-46b2-9963-c8f5cee1ae7b" variableName="flightid"/>
@@ -61,12 +46,19 @@ output application/json
 	<flow name="getFlightByDest" doc:id="21a19703-3b30-4e32-8e95-bd83ba7ec1d3" >
 		<http:listener doc:name="GET /flights?{destination}" doc:id="607642b1-c5f2-46e2-901c-f1555f4ef3bb" config-ref="HTTP_Listener_config" path="/flights" allowedMethods="GET" />
 		<set-variable value="#[message.attributes.queryParams.destination]" doc:name="Set Variable destination" doc:id="3b7f0539-f124-41dd-8264-b63fcaa56dbe" variableName="destination" />
-		<db:select doc:name="select flights by dest" doc:id="8eb642cb-0733-47da-9941-44a726dc0b87" config-ref="Database_Config" >
-			<db:sql ><![CDATA[SELECT * FROM american where toAirport=:destination]]></db:sql>
-			<db:input-parameters ><![CDATA[#[{
-	"destination" : vars.destination
-}]]]></db:input-parameters>
-		</db:select>
+		<choice doc:name="Choice" doc:id="0f62ca8a-f7a5-472f-aaea-c14965ee08c6" >
+			<when expression="#[vars.destination != null]">
+				<db:select doc:name="select flights by dest" doc:id="f861fa96-64e7-4866-a5fe-7d0795a4cd10" config-ref="Database_Config">
+					<db:sql ><![CDATA[SELECT * FROM american WHERE toAirport = :destination]]></db:sql>
+					<db:input-parameters ><![CDATA[#["destination": vars.destination]]]></db:input-parameters>
+				</db:select>
+			</when>
+			<otherwise >
+				<db:select doc:name="Select all flights" doc:id="7e916526-fb30-40ba-a1a8-8cb04abd9175" config-ref="Database_Config">
+					<db:sql ><![CDATA[SELECT * FROM american]]></db:sql>
+				</db:select>
+			</otherwise>
+		</choice>
 		<ee:transform doc:name="Transform Message" doc:id="fa7dbc2d-01dc-47ed-a347-89b0535631b7" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
