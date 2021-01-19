@@ -27,4 +27,35 @@ payload]]></ee:set-payload>
 		</ee:transform>
 		<logger level="INFO" doc:name="Log fetched flights id" doc:id="2309b11c-7412-4be9-9ee8-8b748f79eb00" message="#[payload.ID]" />
 	</flow>
+	<flow name="getFlightByID" doc:id="9086943f-19c4-431c-a474-36f4f62f8529">
+		<http:listener doc:name="GET /flights/{ID}" doc:id="d92e4857-9484-47b1-9a1d-59c1048f72f4" config-ref="HTTP_Listener_config" path="/flights/{ID}" allowedMethods="GET" />
+		<set-variable value="#[message.attributes.uriParams.ID]" doc:name="Set Flight ID" doc:id="4831e743-2117-46b2-9963-c8f5cee1ae7b" variableName="flightid"/>
+		<db:select doc:name="select_flight_by_ID" doc:id="f696a08b-6ff9-4e69-b75f-bf22f8e86b10" config-ref="Database_Config">
+			<db:sql><![CDATA[SELECT * FROM american
+	WHERE ID = :ID]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{"ID" : vars.flightid}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="5202486c-5227-4ca4-ac9e-6ce104e98feb">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Log fetched flights id" doc:id="b3e9a04d-4dfe-4c34-8373-3d87f03535f0" message="#[payload.ID]" />
+	</flow>
+	<flow name="postFlight" doc:id="6350088b-49d9-4a6f-9314-9c1c9401403e" >
+		<http:listener doc:name="POST /flights" doc:id="82162c18-8b47-4cff-b774-220e3dd0790b" config-ref="HTTP_Listener_config" path="/flights" allowedMethods="POST"/>
+		<ee:transform doc:name="Transform Message" doc:id="f5febbe7-86c5-49b6-9b09-e25e829ff948" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message":"Flight added (but not really!)"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
 </mule>
