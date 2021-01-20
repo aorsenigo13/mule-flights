@@ -72,6 +72,6 @@ output application/json
 	</flow>
 	<flow name="getTime" doc:id="49d83113-6b3c-4d15-b764-02655d19e914" >
 		<http:listener doc:name="GET /time" doc:id="590773d0-cf42-45bf-854e-401d43935d05" config-ref="HTTP_Listener_config" path="/time" allowedMethods="GET"/>
-		<http:request method="GET" doc:name="Request timeZone" doc:id="a263e532-d3ff-4020-aa17-f8340ca8cde5" config-ref="HTTP_Request_configuration" path="/" responseTimeout="300000"/>
+		<http:request method="GET" doc:name="Request timeZone" doc:id="a263e532-d3ff-4020-aa17-f8340ca8cde5" config-ref="HTTP_Request_configuration" path="/Europe" responseTimeout="300000"/>
 	</flow>
 </mule>
