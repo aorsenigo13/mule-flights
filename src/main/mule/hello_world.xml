@@ -7,17 +7,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="78660c83-55d5-4da8-b898-cf24f82b5789" >
-		<http:listener-connection host="0.0.0.0" port="${http.port}" />
-	</http:listener-config>
-	<db:config name="Database_Config" doc:name="Database Config" doc:id="4058e03f-10dd-4e20-bdf0-86857615322a" >
-		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.user}" password="${db.password}" database="${db.database}" />
-	</db:config>
-	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="7a8fa34b-c380-411d-a1d2-2447cdb3c9b5" />
-	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="42f8bc72-0f10-4c5c-929e-fc10e90f402c" basePath="/api/timezone" >
-		<http:request-connection host="worldtimeapi.org" port="80" />
-	</http:request-config>
-	<configuration-properties doc:name="Configuration properties" doc:id="f855a9f4-ad6c-41ee-b384-3375d04a3c7c" file="config.yaml" />
+
 	<flow name="getFlightByID" doc:id="9086943f-19c4-431c-a474-36f4f62f8529">
 		<set-variable value="#[message.attributes.uriParams.ID]" doc:name="Set Flight ID" doc:id="4831e743-2117-46b2-9963-c8f5cee1ae7b" variableName="flightid"/>
 		<validation:is-number numberType="INTEGER" doc:name="Is number" doc:id="fa095f59-9493-4fd0-b68d-19051ddb9e4f" config-ref="Validation_Config" value="#[vars.flightid]" minValue="0"/>
