@@ -8,17 +8,17 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="78660c83-55d5-4da8-b898-cf24f82b5789" >
-		<http:listener-connection host="0.0.0.0" port="8081" />
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
 	</http:listener-config>
 	<db:config name="Database_Config" doc:name="Database Config" doc:id="4058e03f-10dd-4e20-bdf0-86857615322a" >
-		<db:my-sql-connection host="mudb.learn.mulesoft.com" port="3306" user="mule" password="mule" database="training" />
+		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.user}" password="${db.password}" database="${db.database}" />
 	</db:config>
 	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="7a8fa34b-c380-411d-a1d2-2447cdb3c9b5" />
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="42f8bc72-0f10-4c5c-929e-fc10e90f402c" basePath="/api/timezone" >
 		<http:request-connection host="worldtimeapi.org" port="80" />
 	</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="f855a9f4-ad6c-41ee-b384-3375d04a3c7c" file="config.yaml" />
 	<flow name="getFlightByID" doc:id="9086943f-19c4-431c-a474-36f4f62f8529">
-		<http:listener doc:name="GET /flights/{ID}" doc:id="d92e4857-9484-47b1-9a1d-59c1048f72f4" config-ref="HTTP_Listener_config" path="/flights/{ID}" allowedMethods="GET" />
 		<set-variable value="#[message.attributes.uriParams.ID]" doc:name="Set Flight ID" doc:id="4831e743-2117-46b2-9963-c8f5cee1ae7b" variableName="flightid"/>
 		<validation:is-number numberType="INTEGER" doc:name="Is number" doc:id="fa095f59-9493-4fd0-b68d-19051ddb9e4f" config-ref="Validation_Config" value="#[vars.flightid]" minValue="0"/>
 		<db:select doc:name="select_flight_by_ID" doc:id="f696a08b-6ff9-4e69-b75f-bf22f8e86b10" config-ref="Database_Config">
@@ -37,10 +37,10 @@ output application/json
 payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="5b9947f3-5f52-4ffd-b20d-f44c806bced3" message="${message.info}"/>
 		<logger level="INFO" doc:name="Log fetched flights id" doc:id="b3e9a04d-4dfe-4c34-8373-3d87f03535f0" message="#[payload.ID]" />
 	</sub-flow>
 	<flow name="getFlightByDest" doc:id="21a19703-3b30-4e32-8e95-bd83ba7ec1d3">
-		<http:listener doc:name="GET /flights?{destination}" doc:id="607642b1-c5f2-46e2-901c-f1555f4ef3bb" config-ref="HTTP_Listener_config" path="/flights" allowedMethods="GET" />
 		<set-variable value="#[message.attributes.queryParams.destination]" doc:name="Set Variable destination" doc:id="3b7f0539-f124-41dd-8264-b63fcaa56dbe" variableName="destination" />
 		<choice doc:name="Choice" doc:id="0f62ca8a-f7a5-472f-aaea-c14965ee08c6">
 			<when expression="#[vars.destination != null]">
@@ -58,7 +58,6 @@ payload]]></ee:set-payload>
 		<flow-ref doc:name="common transform and log Reference" doc:id="c536bb6b-bef8-4665-9160-f1f1a3bcd7e4" name="commonTransformAndLog"/>
 	</flow>
 	<flow name="postFlight" doc:id="6350088b-49d9-4a6f-9314-9c1c9401403e" >
-		<http:listener doc:name="POST /flights" doc:id="82162c18-8b47-4cff-b774-220e3dd0790b" config-ref="HTTP_Listener_config" path="/flights" allowedMethods="POST"/>
 		<ee:transform doc:name="Transform Message" doc:id="f5febbe7-86c5-49b6-9b09-e25e829ff948" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
